@@ -24,12 +24,29 @@
       </StackPanel>
       
       <Button Margin="10" Name="Load">Import</Button>
-      <Button Margin="10" Name="GenerateOutput">Generate output</Button>
+      <Button Margin="10" Name="GenerateOutput">Export log</Button>
 
       <StackPanel Orientation="Horizontal" Margin="10">
-        <TextBox x:Name="Offset" Width="120" Margin="0 0 10 0" >0</TextBox>
-        <Button x:Name="SetOffset">Offset</Button>
+        <TextBox x:Name="Offset" Width="70" Margin="0 0 10 0">0</TextBox>
+        <Button x:Name="SetOffset" Width="100">Offset (ms)</Button>
       </StackPanel>
+
+      <StackPanel Orientation="Horizontal" Margin="10">
+        <TextBlock Width="60" Margin="0 0 10 0">Max roll:</TextBlock>
+        <TextBox x:Name="MaxRoll" Width="100">10</TextBox>
+      </StackPanel>
+
+      <StackPanel Orientation="Horizontal" Margin="10">
+        <TextBlock Width="60" Margin="0 0 10 0">Max pitch:</TextBlock>
+        <TextBox x:Name="MaxPitch" Width="100">10</TextBox>
+      </StackPanel>
+
+      <StackPanel Orientation="Horizontal" Margin="10">
+        <TextBlock Width="60" Margin="0 0 10 0">Min alt:</TextBlock>
+        <TextBox x:Name="MinAlt" Width="100">0</TextBox>
+      </StackPanel>
+
+      
 
       <ListBox x:Name="Photos" Margin="10" />
     </StackPanel>
