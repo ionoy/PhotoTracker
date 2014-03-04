@@ -84,6 +84,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Angle.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -92,16 +93,25 @@
     <Compile Include="FlightLog.cs" />
     <Compile Include="FlightLogEntry.cs" />
     <Compile Include="LogEntryMarker.cs" />
+    <Compile Include="LogExporter.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="PhotoInfoPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Progress.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MarkerController.cs" />
+    <Compile Include="PhotoInfoPanel.xaml.cs">
+      <DependentUpon>PhotoInfoPanel.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Progress.xaml.cs">
       <DependentUpon>Progress.xaml</DependentUpon>
     </Compile>

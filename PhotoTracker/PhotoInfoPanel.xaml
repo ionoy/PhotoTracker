@@ -1,0 +1,16 @@
+﻿<UserControl x:Class="PhotoTracker.PhotoInfoPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+  <StackPanel x:Name="SelectedPhotoInfo" Margin="10">
+    <TextBlock Text="{Binding Path=LogEntry.Lat, StringFormat={}{0:00.00000 lat}}" Margin="3" />
+    <TextBlock Text="{Binding Path=LogEntry.Lon, StringFormat={}{0:00.00000 lon}}" Margin="3 3 3 10" />
+    <TextBlock Text="{Binding Path=LogEntry.Alt, StringFormat={}{0:### alt}}" Margin="3 3 3 10" />
+    <TextBlock Text="{Binding Path=LogEntry.Roll,  StringFormat={}{0: #0 roll;-#0 roll}}" Margin="3" />
+    <TextBlock Text="{Binding Path=LogEntry.Pitch, StringFormat={}{0: #0 pitch;-#0 pitch}}" Margin="3" />
+    <TextBlock Text="{Binding Path=LogEntry.Yaw,   StringFormat={}{0: #0 yaw;-#0 yaw}}"  Margin="3" />
+  </StackPanel>
+</UserControl>

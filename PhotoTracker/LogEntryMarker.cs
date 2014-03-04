@@ -1,63 +1,111 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.IO;
-using System.Windows.Media;
+using System.Linq;
+using System.Net;
+using System.Windows.Documents;
 using GMap.NET;
 using GMap.NET.WindowsForms;
+using Microsoft.Maps.MapControl.WPF;
 
 namespace PhotoTracker
 {
-    class LogEntryMarker : GMapMarker
+    public class LogEntryMarker : GMapMarker
     {
-        private const double CameraHFov = 46.77696485798980517842728275484;
-        private const double CameraVFov = 36.008323211826764472069247464708;
-
         public FlightLogEntry LogEntry { get; private set; }
+        public int Index { get; private set; }
         public string PhotoFilename { get; private set; }
 
+        public Uri ThumbnailFullPath { get; private set; }
+        public Uri ImageFullPath { get; private set; }
+
+        public Image Thumbnail { get; set; }
+        public int DTime { get; set; }
+
         private readonly GMapControl _map;
-        private readonly Image _thumbnail;
-        private readonly double _fovX;
-        private readonly double _fovY;
-        private readonly Func<FlightLogEntry, bool> _entryFilter;
-        
-        public LogEntryMarker(FlightLogEntry logEntry, FileInfo photo, GMapControl map, Func<FlightLogEntry, bool> entryFilter)
+        private readonly MarkerController _controller;
+        private Image _fullImage;
+
+        public LogEntryMarker(FlightLogEntry logEntry, int index, FileInfo photo, GMapControl map, MarkerController controller)
             : base(new PointLatLng(logEntry.Lat, logEntry.Lon))
         {
-            _entryFilter = entryFilter;
+            _controller = controller;
             LogEntry = logEntry;
+            Index = index;
             _map = map;
-            _fovX = (CameraHFov / 180.0) * Math.PI;
-            _fovY = (CameraVFov / 180.0) * Math.PI;
 
             PhotoFilename = photo.Name;
+            ThumbnailFullPath = new Uri(PhotoFilename.GetThumbnailPath(), UriKind.Absolute);
+            ImageFullPath = new Uri(photo.FullName, UriKind.Absolute);
 
-            _thumbnail = Image.FromFile(PhotoFilename.GetThumbnailPath());
+            Thumbnail = Image.FromFile(ThumbnailFullPath.AbsolutePath);
         }
 
         public override void OnRender(Graphics g)
         {
-            if (_entryFilter(LogEntry)) {
+            if (_controller.EntryFilter(LogEntry)) {
                 var oldMatrix = g.Transform;
 
-                var widthInMeters = LogEntry.Alt * Math.Tan(_fovX/2) * 2.0;
-                var heightInMeters = LogEntry.Alt * Math.Tan(_fovY/2) * 2.0;
+                var pitch = LogEntry.Pitch + _controller.PitchOffset;
+                var roll = -LogEntry.Roll + _controller.RollOffset;
+                var yaw = LogEntry.Yaw + _controller.YawOffset;
 
-                var groundResolution = _map.MapProvider.Projection.GetGroundResolution((int) _map.Zoom, LogEntry.Lat);
-                
+                var ll = Tuple.Create(Angle.ToRadian(roll) - MarkerController.FovX / 2, Angle.ToRadian(pitch) - MarkerController.FovY / 2);
+                var lr = Tuple.Create(Angle.ToRadian(roll) + MarkerController.FovX / 2, Angle.ToRadian(pitch) - MarkerController.FovY / 2);
+                var ur = Tuple.Create(Angle.ToRadian(roll) + MarkerController.FovX / 2, Angle.ToRadian(pitch) + MarkerController.FovY / 2);
+                var ul = Tuple.Create(Angle.ToRadian(roll) - MarkerController.FovX / 2, Angle.ToRadian(pitch) + MarkerController.FovY / 2);
+
+                var groundResolution = _map.MapProvider.Projection.GetGroundResolution((int)_map.Zoom, LogEntry.Lat);
+                var llPoint = PointFromAngles(ll.Item1, ll.Item2, groundResolution);
+                var lrPoint = PointFromAngles(lr.Item1, lr.Item2, groundResolution);
+                var urPoint = PointFromAngles(ur.Item1, ur.Item2, groundResolution);
+                var ulPoint = PointFromAngles(ul.Item1, ul.Item2, groundResolution);
+
+                var points = new[] { ulPoint, urPoint, llPoint };
+
                 g.TranslateTransform(LocalPosition.X, LocalPosition.Y);
-                g.RotateTransform((float) LogEntry.Yaw);
+                g.RotateTransform(yaw);
                 g.TranslateTransform(-LocalPosition.X, -LocalPosition.Y);
 
-                var wInPixels = (int)(widthInMeters / groundResolution);
-                var hInPixels = (int)(heightInMeters / groundResolution);
+                if (_controller.IsSelected(this)) {
+                    //                    if (_fullImage == null)
+                    //                        _fullImage = Image.FromFile(ImageFullPath.AbsolutePath);
 
-                g.DrawImage(_thumbnail, LocalPosition.X - wInPixels / 2, LocalPosition.Y - hInPixels / 2, wInPixels, hInPixels);
+                    //g.DrawImage(Thumbnail, screenX, screenY, screenWidth, screenHeight);
+                    g.DrawImage(Thumbnail, points, new Rectangle(0, 0, Thumbnail.Width, Thumbnail.Height), GraphicsUnit.Pixel, GetTransparencyAttributes(_controller.Opacity));
+                } else {
+                    if (_fullImage != null) {
+                        _fullImage.Dispose();
+                        _fullImage = null;
+                    }
+
+                    try {
+                        g.DrawImage(Thumbnail, points, new Rectangle(0, 0, Thumbnail.Width, Thumbnail.Height), GraphicsUnit.Pixel, GetTransparencyAttributes(_controller.Opacity));
+                    } catch (Exception e) {
+                        Console.WriteLine(e);
+                    }
+                }
+                g.DrawRectangle(new Pen(Color.Red, 4), LocalPosition.X, LocalPosition.Y, 10, 10);
 
                 g.Transform = oldMatrix;
             }
+        }
+
+        private Point PointFromAngles(double roll, double pitch, double groundResolution)
+        {
+            var dx = Math.Tan(roll) * LogEntry.Alt;
+            var dy = Math.Tan(pitch) * LogEntry.Alt;
+            return new Point((int)(LocalPosition.X + dx / groundResolution), (int)(LocalPosition.Y - dy / groundResolution));
+        }
+        
+        ImageAttributes GetTransparencyAttributes(float opacity)
+        {
+            var colorMatrix = new ColorMatrix { Matrix33 = opacity };
+            var imageAttributes = new ImageAttributes();
+            imageAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+            return imageAttributes;
         }
     }
 }
