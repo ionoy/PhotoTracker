@@ -1,0 +1,126 @@
+<Window x:Class="PhotoTracker.MainView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:cal="http://www.caliburnproject.org"
+        xmlns:photoTracker="clr-namespace:PhotoTracker"
+        Title="Photo tracker">
+
+  <Window.Resources>
+    <Style TargetType="{x:Type ListBox}" x:Key="Preview">
+      <!--<span class="code-comment"> Set the ItemTemplate of the ListBox to a DataTemplate which
+           explains how to display an object of type BitmapImage. -->
+      <Setter Property="ItemTemplate">
+        <Setter.Value>
+          <DataTemplate>
+            <StackPanel Orientation="Horizontal">
+              <StackPanel>
+                <TextBlock Text="{Binding Path=Index}" FontWeight="Bold" Margin="0 5 5 5" />
+                <TextBlock Text="{Binding Path=PhotoFilename}" Margin="0 5 5 5" />
+                <TextBlock Text="{Binding Path=DTime, StringFormat={}{0:###0ms}}" Margin="0 5 5 5"></TextBlock>
+              </StackPanel>
+              <Image Stretch="Fill" Source="{Binding Path=ThumbnailFullPath}" Height="100" />
+            </StackPanel>
+          </DataTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </Window.Resources>
+
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition />
+      <ColumnDefinition Width="200" />
+    </Grid.ColumnDefinitions>
+
+    <Grid.RowDefinitions>
+      <RowDefinition />
+      <RowDefinition Height="130" />
+    </Grid.RowDefinitions>
+
+    <photoTracker:MapHost />
+    <Button Grid.Row="0" Grid.Column="0" Width="200" Height="200">HELLO</Button>
+
+    <StackPanel Grid.Column="1" Grid.Row="0">
+      <StackPanel Orientation="Horizontal" Margin="10">
+        <TextBox x:Name="PhotoPath" Width="120" Margin="0 0 10 0" />
+        <Button>Photos</Button>
+      </StackPanel>
+
+      <StackPanel Orientation="Horizontal" Margin="10">
+        <TextBox x:Name="LogPath" Width="120" Margin="0 0 10 0" />
+        <Button>Log file</Button>
+      </StackPanel>
+
+      <Button Margin="10" Name="Load">Import</Button>
+      <Button Margin="10" Name="ExportLog">Export log</Button>
+
+      <StackPanel Orientation="Horizontal" Margin="10">
+        <TextBox x:Name="TimeOffset" Width="70" Margin="0 0 10 0">0</TextBox>
+        <Button x:Name="SetOffset" Width="100">Offset (ms)</Button>
+      </StackPanel>
+
+      <StackPanel Orientation="Horizontal" Margin="10 5">
+        <TextBlock Width="60" Margin="0 0 10 0">Max roll:</TextBlock>
+        <TextBox x:Name="MaxRoll" Width="100">10</TextBox>
+      </StackPanel>
+
+      <StackPanel Orientation="Horizontal" Margin="10 5">
+        <TextBlock Width="60" Margin="0 0 10 0">Max pitch:</TextBlock>
+        <TextBox x:Name="MaxPitch" Width="100">10</TextBox>
+      </StackPanel>
+
+      <StackPanel Orientation="Horizontal" Margin="10 5">
+        <TextBlock Width="60" Margin="0 0 10 0">Min alt:</TextBlock>
+        <TextBox x:Name="MinAlt" Width="100">0</TextBox>
+      </StackPanel>
+
+      <StackPanel Orientation="Horizontal" Margin="10 5">
+        <TextBlock Margin="0 0 10 0">Opacity</TextBlock>
+        <Slider Minimum="0" Maximum="100" Width="125" Value="50" x:Name="Opacity"></Slider>
+      </StackPanel>
+
+      <StackPanel Orientation="Horizontal" Margin="10 5">
+        <TextBlock Margin="0 0 10 0">P offset</TextBlock>
+        <Slider Minimum="-100" Maximum="100" Width="80" Value="0" x:Name="PitchOffset"></Slider>
+        <TextBlock Margin="0 0 10 0" x:Name="PitchOffsetLabel">0</TextBlock>
+      </StackPanel>
+
+      <StackPanel Orientation="Horizontal" Margin="10 5">
+        <TextBlock Margin="0 0 10 0">R offset</TextBlock>
+        <Slider Minimum="-100" Maximum="100" Width="80" Value="0" x:Name="RollOffset"></Slider>
+        <TextBlock Margin="0 0 10 0" x:Name="RollOffsetLabel">0</TextBlock>
+      </StackPanel>
+
+      <StackPanel Orientation="Horizontal" Margin="10 5">
+        <TextBlock Margin="0 0 10 0">Y offset</TextBlock>
+        <Slider Minimum="-100" Maximum="100" Width="80" Value="0" x:Name="YawOffset"></Slider>
+        <TextBlock Margin="0 0 10 0" x:Name="YawOffsetLabel">0</TextBlock>
+      </StackPanel>
+
+      <StackPanel Orientation="Horizontal" Margin="10 5">
+        <TextBox Width="30" Margin="0 0 10 0" x:Name="PhotoFilterFrom"></TextBox>
+        <TextBox Width="30" Margin="0 0 10 0" x:Name="PhotoFilterTo"></TextBox>
+        <Button x:Name="SetPhotoFilterRange">Filter</Button>
+      </StackPanel>
+
+      <photoTracker:PhotoInfoPanel DataContext="{Binding SelectedMarker}" Visibility="{Binding IsPhotoInfoVisible}"></photoTracker:PhotoInfoPanel>
+    </StackPanel>
+
+    <ListBox x:Name="PhotoList" 
+             ItemsSource="{Binding PhotoList}" 
+             SelectedItem="{Binding SelectedMarker}"
+             Style="{DynamicResource Preview}" 
+             Grid.Column="0" 
+             Grid.Row="1"
+             Grid.ColumnSpan="2"
+             SelectionMode="Single"
+             cal:Message.Attach="[Event MouseDoubleClick] = [Action PhotoListDoubleClicked]">
+      <ListBox.ItemsPanel>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel Orientation="Horizontal"></VirtualizingStackPanel>
+        </ItemsPanelTemplate>
+      </ListBox.ItemsPanel>
+    </ListBox>
+  </Grid>
+
+</Window>

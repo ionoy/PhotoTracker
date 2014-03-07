@@ -65,63 +65,7 @@ namespace PhotoTracker
             _markerController = new MarkerController(e => e.Alt > _minAlt && Math.Abs(e.Roll) <= _maxRoll && Math.Abs(e.Pitch) <= _maxPitch,
                                                      m => m == SelectedMarker,
                                                      () => (float)_opacity / 100.0f);
-
-            Load.Click += (sender, args) => {
-                _photoFiles.Clear();
-                _photoFiles.AddRange(Directory.EnumerateFiles(PhotoPath.Text)
-                                              .Where(f => f.ToUpper().EndsWith(".JPG"))
-                                              .Select(f => new FileInfo(f))
-                                              .OrderBy(f => f.LastWriteTime)
-                                              .ToList());
-
-                From.Text = "0";
-                To.Text = _photoFiles.Count.ToString();
-                InvalidateFilter();
-
-                var progress = new Progress("Generating thumbnails");
-                progress.Show();
-
-                Task.Run(() => {
-                    for (int index = 0; index < _photoFiles.Count; index++) {
-                        var photo = _photoFiles[index];
-                        var thumbnailPath = photo.Name.GetThumbnailPath();
-                        var thumbnailDirectory = Path.GetDirectoryName(thumbnailPath);
-
-                        if (!Directory.Exists(thumbnailDirectory))
-                            Directory.CreateDirectory(thumbnailDirectory);
-
-                        if (!File.Exists(thumbnailPath)) {
-                            using (var bitmap = new Bitmap(photo.FullName)) {
-                                var thumbnail =
-                                    (Bitmap)bitmap.GetThumbnailImage(bitmap.Width / 20, bitmap.Height / 20, null, IntPtr.Zero);
-                                thumbnail.Save(thumbnailPath);
-                            }
-                        }
-
-                        var i = index;
-                        Dispatcher.BeginInvoke(new Action(() => {
-                            progress.Percentage = (i / (float)_photoFiles.Count) * 100;
-                        }));
-                    }
-
-                    Dispatcher.BeginInvoke(new Action(() => {
-                        progress.Hide();
-                        UpdateMarkers();
-                    }));
-                });
-            };
             
-            ExportLog.Click += (sender, args) => {
-                int exportYawCorrection;
-                if (!int.TryParse(ExportYawCorrection.Text, out exportYawCorrection))
-                    exportYawCorrection = 0;
-
-                var markers = _overlay.Markers.OfType<LogEntryMarker>().Where(m => _markerController.EntryFilter(m.LogEntry));
-                LogExporter.WriteOutput(exportYawCorrection, markers, _offset, _maxRoll, _maxPitch, _minAlt);
-            };
-
-            SetOffset.Click += (sender, args) => UpdateMarkers(false);
-
             int.TryParse(MaxRoll.Text, out _maxRoll);
             int.TryParse(MaxPitch.Text, out _maxPitch);
             int.TryParse(MinAlt.Text, out _minAlt);

@@ -12,18 +12,23 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using PropertyChanged;
 
 namespace PhotoTracker
 {
-    /// <summary>
-    /// Interaction logic for PhotoInfoPanel.xaml
-    /// </summary>
+    [ImplementPropertyChanged]
     public partial class PhotoInfoPanel : UserControl
     {
-        public PhotoInfoPanel(LogEntryMarker marker)
+        public LogMarker Marker { get; set; }
+
+        public PhotoInfoPanel()
         {
             InitializeComponent();
-            DataContext = marker;
+            
+            DataContext = this;
         }
+
+        public void Connect(int connectionId, object target)
+        {}
     }
 }

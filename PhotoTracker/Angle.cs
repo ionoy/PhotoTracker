@@ -2,11 +2,11 @@
 
 namespace PhotoTracker
 {
-    public class Angle
+    public static class Angle
     {
-        public static double ToRadian(double degrees)
+        public static float ToRadian(float degrees)
         {
-            return degrees * Math.PI / 180.0;
+            return degrees * (float)Math.PI / 180.0f;
         }
     }
 }

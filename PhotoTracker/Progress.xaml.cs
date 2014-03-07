@@ -27,5 +27,8 @@ namespace PhotoTracker
 
             Operation.Text = operation;
         }
+
+        public void Connect(int connectionId, object target)
+        {}
     }
 }

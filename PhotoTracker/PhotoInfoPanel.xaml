@@ -6,7 +6,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
   <StackPanel x:Name="SelectedPhotoInfo" Margin="10">
-    <TextBlock Text="{Binding Path=LogEntry.Lat, StringFormat={}{0:00.00000 lat}}" Margin="3" />
+    <TextBlock Text="{Binding Path=Marker.LogEntry.Lat, StringFormat={}{0:00.00000 lat}}" Margin="3" />
     <TextBlock Text="{Binding Path=LogEntry.Lon, StringFormat={}{0:00.00000 lon}}" Margin="3 3 3 10" />
     <TextBlock Text="{Binding Path=LogEntry.Alt, StringFormat={}{0:### alt}}" Margin="3 3 3 10" />
     <TextBlock Text="{Binding Path=LogEntry.Roll,  StringFormat={}{0: #0 roll;-#0 roll}}" Margin="3" />

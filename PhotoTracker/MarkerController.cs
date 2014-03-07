@@ -4,23 +4,31 @@ namespace PhotoTracker
 {
     public class MarkerController
     {
-        public const double FovX = (46.77696485798980517842728275484 / 180.0) * Math.PI;
-        public const double FovY = (36.008323211826764472069247464708 / 180.0) * Math.PI;
+        public readonly float FovX;
+        public readonly float FovY;
 
         public Func<FlightLogEntry, bool> EntryFilter { get; private set; }
-        public Func<LogEntryMarker, bool> IsSelected { get; private set; }
-        public float Opacity { get { return _opacityGetter(); }}
-        public float PitchOffset { get; set; }
-        public float RollOffset { get; set; }
-        public float YawOffset { get; set; }
+        public Func<LogMarker, bool> IsSelected { get; private set; }
 
-        private readonly Func<float> _opacityGetter;
+        public float Opacity { get { return _model.Opacity / 100.0f; }}
+        public float PitchOffset { get { return _model.PitchOffset / 2.0f; } }
+        public float RollOffset { get { return _model.RollOffset / 2.0f; } }
+        public float YawOffset { get { return _model.YawOffset / 2.0f; } }
 
-        public MarkerController(Func<FlightLogEntry, bool> entryFilter, Func<LogEntryMarker, bool> isSelected, Func<float> opacityGetter)
+        private readonly MainViewModel _model;
+        
+        public MarkerController(MainViewModel model)
         {
-            _opacityGetter = opacityGetter;
-            EntryFilter = entryFilter;
-            IsSelected = isSelected;
+            _model = model;
+
+            EntryFilter = e => e.Alt > model.MinAlt && 
+                               Math.Abs(e.Roll) <= model.MaxRoll && 
+                               Math.Abs(e.Pitch) <= model.MaxPitch;
+
+            IsSelected = e => e == model.SelectedMarker;
+
+            FovX = Angle.ToRadian(46.7769f);
+            FovY = Angle.ToRadian(36.0083f);
         }
     }
 }
