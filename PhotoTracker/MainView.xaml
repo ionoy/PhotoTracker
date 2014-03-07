@@ -3,9 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:cal="http://www.caliburnproject.org"
         xmlns:photoTracker="clr-namespace:PhotoTracker"
-        Title="Photo tracker">
-
+        Title="Photo tracker"
+        cal:Message.Attach="[Event KeyDown] = [Action KeyDown($source, $eventArgs)]">
+  
   <Window.Resources>
+    <BooleanToVisibilityConverter x:Key="BooleanConverter"></BooleanToVisibilityConverter>
     <Style TargetType="{x:Type ListBox}" x:Key="Preview">
       <!--<span class="code-comment"> Set the ItemTemplate of the ListBox to a DataTemplate which
            explains how to display an object of type BitmapImage. -->
@@ -14,9 +16,11 @@
           <DataTemplate>
             <StackPanel Orientation="Horizontal">
               <StackPanel>
-                <TextBlock Text="{Binding Path=Index}" FontWeight="Bold" Margin="0 5 5 5" />
-                <TextBlock Text="{Binding Path=PhotoFilename}" Margin="0 5 5 5" />
-                <TextBlock Text="{Binding Path=DTime, StringFormat={}{0:###0ms}}" Margin="0 5 5 5"></TextBlock>
+                <TextBlock Text="{Binding Path=Index}" FontWeight="Bold" Margin="0 2 5 2" />
+                <TextBlock Text="{Binding Path=PhotoFilename}" Margin="0 2 5 2" />
+                <TextBlock Text="{Binding Path=DelayFromPrevious, StringFormat={}{0:###0ms}}" Margin="0 2 5 2" />
+                <CheckBox IsChecked="{Binding IsManuallyFilteredOut}" Content="Filtered out" Margin="0 2 5 2" />
+                <TextBlock Visibility="{Binding ValuesOutOfRange, Converter={StaticResource BooleanConverter}}" Foreground="Red" Margin="0 2 5 2" Text="Pitch/Roll too big" />
               </StackPanel>
               <Image Stretch="Fill" Source="{Binding Path=ThumbnailFullPath}" Height="100" />
             </StackPanel>
@@ -76,45 +80,40 @@
 
       <StackPanel Orientation="Horizontal" Margin="10 5">
         <TextBlock Margin="0 0 10 0">Opacity</TextBlock>
-        <Slider Minimum="0" Maximum="100" Width="125" Value="50" x:Name="Opacity"></Slider>
+        <Slider Minimum="0" Maximum="100" Width="125" Value="50" x:Name="Opacity" />
       </StackPanel>
 
       <StackPanel Orientation="Horizontal" Margin="10 5">
         <TextBlock Margin="0 0 10 0">P offset</TextBlock>
-        <Slider Minimum="-100" Maximum="100" Width="80" Value="0" x:Name="PitchOffset"></Slider>
+        <Slider Minimum="-100" Maximum="100" Width="80" Value="0" x:Name="PitchOffset"/>
         <TextBlock Margin="0 0 10 0" x:Name="PitchOffsetLabel">0</TextBlock>
       </StackPanel>
 
       <StackPanel Orientation="Horizontal" Margin="10 5">
         <TextBlock Margin="0 0 10 0">R offset</TextBlock>
-        <Slider Minimum="-100" Maximum="100" Width="80" Value="0" x:Name="RollOffset"></Slider>
+        <Slider Minimum="-100" Maximum="100" Width="80" Value="0" x:Name="RollOffset"/>
         <TextBlock Margin="0 0 10 0" x:Name="RollOffsetLabel">0</TextBlock>
       </StackPanel>
 
       <StackPanel Orientation="Horizontal" Margin="10 5">
         <TextBlock Margin="0 0 10 0">Y offset</TextBlock>
-        <Slider Minimum="-100" Maximum="100" Width="80" Value="0" x:Name="YawOffset"></Slider>
+        <Slider Minimum="-100" Maximum="100" Width="80" Value="0" x:Name="YawOffset"/>
         <TextBlock Margin="0 0 10 0" x:Name="YawOffsetLabel">0</TextBlock>
       </StackPanel>
+    
+      <Button Content="Update" Margin="10" x:Name="Update" />
 
-      <StackPanel Orientation="Horizontal" Margin="10 5">
-        <TextBox Width="30" Margin="0 0 10 0" x:Name="PhotoFilterFrom"></TextBox>
-        <TextBox Width="30" Margin="0 0 10 0" x:Name="PhotoFilterTo"></TextBox>
-        <Button x:Name="SetPhotoFilterRange">Filter</Button>
-      </StackPanel>
-
-      <photoTracker:PhotoInfoPanel DataContext="{Binding SelectedMarker}" Visibility="{Binding IsPhotoInfoVisible}"></photoTracker:PhotoInfoPanel>
+      <photoTracker:PhotoInfoPanel DataContext="{Binding CurrentMarker}" Visibility="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.IsPhotoInfoVisible}" />
     </StackPanel>
 
-    <ListBox x:Name="PhotoList" 
-             ItemsSource="{Binding PhotoList}" 
-             SelectedItem="{Binding SelectedMarker}"
+    <ListBox x:Name="Markers" 
+             ItemsSource="{Binding SelectedMarkers}" 
+             SelectedItem="{Binding CurrentMarker}"
              Style="{DynamicResource Preview}" 
              Grid.Column="0" 
              Grid.Row="1"
              Grid.ColumnSpan="2"
-             SelectionMode="Single"
-             cal:Message.Attach="[Event MouseDoubleClick] = [Action PhotoListDoubleClicked]">
+             SelectionMode="Single">
       <ListBox.ItemsPanel>
         <ItemsPanelTemplate>
           <VirtualizingStackPanel Orientation="Horizontal"></VirtualizingStackPanel>

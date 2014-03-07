@@ -146,8 +146,7 @@ namespace YLScsDrawing.Imaging.Filters
             destCB.B = new byte[Rect.Width, Rect.Height];
             destCB.G = new byte[Rect.Width, Rect.Height];
             destCB.R = new byte[Rect.Width, Rect.Height];
-
-           
+            
             PointF ptInPlane = new PointF();
             int x1, x2, y1, y2;
             double dab, dbc, dcd, dda;

@@ -47,8 +47,8 @@ namespace PhotoTracker
                 } else if (line[0] == "NTUN") {
                     tmpEntry.Alt = float.Parse(line[8]);
                 } else if (line[0] == "GPS") {
-                    tmpEntry.Lat = double.Parse(line[6]);
-                    tmpEntry.Lon = double.Parse(line[7]);
+                    tmpEntry.Lat = float.Parse(line[6]);
+                    tmpEntry.Lon = float.Parse(line[7]);
                 } else if (line[0] == "CAM") {
                     cameraTriggered = true;
                 }

@@ -8,8 +8,8 @@
         public float Roll { get; set; }
         public float Yaw { get; set; }
 
-        public double Lat { get; set; }
-        public double Lon { get; set; }
+        public float Lat { get; set; }
+        public float Lon { get; set; }
         public float Alt { get; set; }
 
         public FlightLogEntry Clone()

@@ -99,6 +99,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AppBootstrapper.cs" />
+    <Compile Include="BooleanToVisibilityConverter.cs" />
+    <Compile Include="ExSlider.cs" />
     <Compile Include="Infrastructure\WPFHelpers.cs" />
     <Compile Include="IShell.cs" />
     <Compile Include="MapHost.cs" />
@@ -128,7 +130,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MarkerController.cs" />
+    <Compile Include="MarkerInfo.cs" />
     <Compile Include="PhotoInfoPanel.xaml.cs">
       <DependentUpon>PhotoInfoPanel.xaml</DependentUpon>
     </Compile>
