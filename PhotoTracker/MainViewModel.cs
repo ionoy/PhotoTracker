@@ -66,11 +66,16 @@ namespace PhotoTracker
 
         public int PhotoFilterFrom { get; set; }
         public int PhotoFilterTo { get; set; }
-        
+
+
+        public Visibility IsPhotoInfoVisible { get { return CurrentMarker != null ? Visibility.Visible : Visibility.Collapsed; } }
+
         public BindableCollection<LogMarker> Markers { get; set; }
         public BindableCollection<LogMarker> SelectedMarkers { get; set; }
         public Dictionary<int, LogMarker> SelectedMarkersByIndex { get; set; } 
         public Dictionary<int, LogMarker> ManuallyFilteredOutByIndex { get; set; }
+
+        public bool IsLiveUpdate { get; set; }
 
         public LogMarker CurrentMarker
         {
@@ -86,9 +91,7 @@ namespace PhotoTracker
                 }
             }
         }
-
-        public Visibility IsPhotoInfoVisible { get { return CurrentMarker != null ? Visibility.Visible : Visibility.Collapsed; } }
-
+        
         public MainViewModel()
         {
             Markers = new BindableCollection<LogMarker>();
@@ -106,6 +109,11 @@ namespace PhotoTracker
                 _map.Invalidate();
             };
 
+            PropertyChanged += (sender, args) => {
+                if (IsLiveUpdate)
+                    _map.Invalidate();
+            };
+
             SelectedMarkersByIndex = new Dictionary<int, LogMarker>();
             ManuallyFilteredOutByIndex = new Dictionary<int, LogMarker>();
 
@@ -116,6 +124,7 @@ namespace PhotoTracker
             MaxPitch = 5;
             MinAlt = 0;
             Opacity = 50;
+            IsLiveUpdate = true;
 
             _markerInfo = new MarkerInfo(this);
         }
@@ -238,8 +247,8 @@ namespace PhotoTracker
             
             var markers = flightLog.CameraTriggerTimes
                                    .Where((_, index) => index < _photoFiles.Count)
-                                   .Select((trigger, index) => new LogMarker(flightLog.FindClosestEntry(trigger + TimeOffset), index,
-                                                                                  _photoFiles[index], _map, _markerInfo))
+                                   .Select((trigger, index) => 
+                                        new LogMarker(flightLog.FindClosestEntry(trigger + TimeOffset), index, _photoFiles[index], _map, _markerInfo))
                                    .ToList();
 
             var prevTime = markers[0].Log.TimeMS;

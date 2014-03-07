@@ -100,14 +100,13 @@
         <Slider Minimum="-100" Maximum="100" Width="80" Value="0" x:Name="YawOffset"/>
         <TextBlock Margin="0 0 10 0" x:Name="YawOffsetLabel">0</TextBlock>
       </StackPanel>
-    
+      <CheckBox IsChecked="{Binding IsLiveUpdate}" Content="Live update" Margin="10"></CheckBox>
       <Button Content="Update" Margin="10" x:Name="Update" />
 
       <photoTracker:PhotoInfoPanel DataContext="{Binding CurrentMarker}" Visibility="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.IsPhotoInfoVisible}" />
     </StackPanel>
 
-    <ListBox x:Name="Markers" 
-             ItemsSource="{Binding SelectedMarkers}" 
+    <ListBox ItemsSource="{Binding SelectedMarkers}" 
              SelectedItem="{Binding CurrentMarker}"
              Style="{DynamicResource Preview}" 
              Grid.Column="0" 
